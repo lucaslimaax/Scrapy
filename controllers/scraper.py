@@ -1,36 +1,38 @@
 import scrapy
 
 class TestSet(scrapy.Spider):
+    ''' '''
 
-    name='test_spider'
+    file = open('websites.txt', 'r', encoding="utf8")
 
-    start_urls = ["http://folhavponline.com.br/categoria/ultimas-noticias/"]
+    listsites = [line.rstrip() for line in file]
+    
+    if len(listsites) == 0:
+        print("A lista de sites não está formatada corretamente, favor verificar")        
 
-    def parse_data(self, response):
+    else:
+        print("Começou a leitura dos sites...")
+        
 
-        SET_SELECTOR = '.MEDIA'
+    name = "test_spider"
+
+    start_urls = listsites
+
+
+    def parse(self, response):
+
+        SET_SELECTOR = '.header'
 
         for data in response.css(SET_SELECTOR):
 
             LOGO_SELECTOR = 'img ::attr(src)'
-        
-            TITLE_SELECTOR = 'a ::text'
 
-            PHONE_SELECTOR= '//div["@class="date-created item"]/a/text()'
+            PHONE_SELECTOR = 'a ::text'
+            # PHONE_SELECTOR = '//*[contains(text(), "465-9555")]'
 
             yield {
+                # montagem do Yield com primeiro elemento de cada seletor
                 'logo': data.css(LOGO_SELECTOR).extract_first(),
-                'phone': data.xpath(PHONE_SELECTOR).extract_first(),
-                'site': data.css(TITLE_SELECTOR).extract_first(),
+                'phones': data.css(PHONE_SELECTOR).extract_first(),
+                'website': response.request.url ,
             }
-
-            NEXT_PAGE_SELECTOR = '.page-numbers a ::attr(href)'
-            next_page = response.css(NEXT_PAGE_SELECTOR).extract_first()
-            # print("AQUIII",next_page)
-            if next_page:
-                yield scrapy.Request(
-                    response.urljoin(next_page),
-                    callback=self.parse
-                )
-
-        
