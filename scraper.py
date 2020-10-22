@@ -1,13 +1,13 @@
 import scrapy
 
-class TestSet(scrapy.Spider):
-    ''' '''
+class ScraperSet(scrapy.Spider):
+    ''' Class responsible to create the Scraper Schema '''
 
     file = open('websites.txt', 'r', encoding="utf8")
 
-    listsites = [line.rstrip() for line in file]
+    list_sites = [line.rstrip() for line in file]
     
-    if len(listsites) == 0:
+    if len(list_sites) == 0:
         print("A lista de sites não está formatada corretamente, favor verificar")        
 
     else:
@@ -16,11 +16,11 @@ class TestSet(scrapy.Spider):
 
     name = "test_spider"
 
-    start_urls = listsites
+    start_urls = list_sites
 
 
     def parse(self, response):
-
+        '''Method responsible to get pseudoselectors'''
         SET_SELECTOR = '.header'
 
         for data in response.css(SET_SELECTOR):
@@ -28,10 +28,10 @@ class TestSet(scrapy.Spider):
             LOGO_SELECTOR = 'img ::attr(src)'
 
             PHONE_SELECTOR = 'a ::text'
-            # PHONE_SELECTOR = '//*[contains(text(), "465-9555")]'
+           
 
             yield {
-                # montagem do Yield com primeiro elemento de cada seletor
+                # assembly of the yield with the first element of each selector
                 'logo': data.css(LOGO_SELECTOR).extract_first(),
                 'phones': data.css(PHONE_SELECTOR).extract_first(),
                 'website': response.request.url ,
